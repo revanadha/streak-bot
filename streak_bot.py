@@ -33,6 +33,12 @@ import json
 import os
 from datetime import datetime, date, time as dtime
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+# Zona waktu yang dipakai untuk semua jadwal reminder.
+# Default: Asia/Makassar (WITA, UTC+8). Bisa diganti lewat environment variable
+# BOT_TIMEZONE, misalnya "Asia/Jakarta" (WIB) atau "Asia/Jayapura" (WIT).
+TIMEZONE = ZoneInfo(os.environ.get("BOT_TIMEZONE", "Asia/Makassar"))
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -223,7 +229,7 @@ def schedule_daily_reminder(application: Application, user_id: str, hour: int, m
 
     application.job_queue.run_daily(
         daily_reminder_job,
-        time=dtime(hour=hour, minute=minute),
+        time=dtime(hour=hour, minute=minute, tzinfo=TIMEZONE),
         chat_id=int(user_id),
         name=job_name,
         data={"user_id": user_id},
